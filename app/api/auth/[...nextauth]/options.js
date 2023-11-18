@@ -61,7 +61,7 @@ async function getUserByEmail({email}) {
     total_followings: user.followings.length,
     followers: [],
     followings: [],
-    my_user: true,
+    myUser: true,
   };
   return newUser;
 }

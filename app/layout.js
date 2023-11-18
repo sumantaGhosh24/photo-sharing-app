@@ -3,9 +3,9 @@ import {Roboto} from "next/font/google";
 import "./globals.css";
 import {ThemeProvider} from "@/components/theme-provider";
 import AuthProvider from "@/components/auth-provider";
-import connectDB from "@/lib/database";
 import Header from "@/components/header";
 import {Toaster} from "@/components/ui/toaster";
+import connectDB from "@/lib/database";
 
 connectDB();
 

@@ -1,55 +1,35 @@
 "use client";
 
 import {useState} from "react";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useForm} from "react-hook-form";
-import * as z from "zod";
 import {useRouter} from "next/navigation";
 import {signIn} from "next-auth/react";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
 import {Button} from "./ui/button";
 import {Input} from "./ui/input";
+import {Label} from "./ui/label";
 import {useToast} from "./ui/use-toast";
 
-const formSchema = z.object({
-  email: z.string().email().min(1),
-  password: z.string().min(6, {message: "Name must be at lease 6 characters."}),
-});
-
 const LoginForm = () => {
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const {toast} = useToast();
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (values) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
     try {
       const res = await signIn("credentials", {
         redirect: false,
-        email: values.email,
-        password: values.password,
+        email,
+        password,
       });
       setLoading(false);
       toast({
         title: "Login successful!",
-        description: `user @${values.email} login.`,
+        description: `user @${email} login.`,
       });
       if (!res?.error) {
         router.push("/");
@@ -64,59 +44,46 @@ const LoginForm = () => {
       toast({
         title: "Login failed!",
         description: error.message,
+        variant: "destructive",
       });
     }
   };
 
   return (
-    <Form {...form}>
+    <>
       <form
         className="flex flex-col justify-start gap-10"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={handleSubmit}
       >
-        <FormField
-          control={form.control}
-          name="email"
-          render={({field}) => (
-            <FormItem className="flex w-full flex-col gap-3">
-              <FormLabel className="text-base font-semibold">Email</FormLabel>
-              <FormControl>
-                <Input
-                  type="email"
-                  className="bg-gray-200 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
-                  placeholder="Enter animation email"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({field}) => (
-            <FormItem className="flex w-full flex-col gap-3">
-              <FormLabel className="text-base font-semibold">
-                Password
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  className="bg-gray-200 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
-                  placeholder="Enter animation password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex w-full flex-col gap-3">
+          <Label className="text-base font-semibold">Email</Label>
+          <div>
+            <Input
+              type="email"
+              className="bg-gray-200 text-black focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+              placeholder="Enter your email"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+        <div className="flex w-full flex-col gap-3">
+          <Label className="text-base font-semibold">Password</Label>
+          <div>
+            <Input
+              type="password"
+              className="bg-gray-200 text-black focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+              placeholder="Enter your password"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+        </div>
         <Button type="submit" variant="primary" disabled={loading}>
           {loading ? "Processing..." : "Login"}
         </Button>
       </form>
-    </Form>
+    </>
   );
 };
 
